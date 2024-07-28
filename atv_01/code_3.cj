@@ -7,9 +7,10 @@ inicio
     
     # Calculando fatorial
     enquanto (n > 0) faça
+    inicio
         resultado := resultado * n.
         n := n - 1.
-    fimenquanto.
+    fim
     
     retorne resultado.
 fim

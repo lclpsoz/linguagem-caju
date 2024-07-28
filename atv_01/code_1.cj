@@ -15,11 +15,9 @@ inicio
     # Inicializando vetor
     para (numero i := 0; i < 5; i := i + 1)
         v[i] := i * 2.
-    fim
 
     # Exibindo valores
     exibir(a, b, c, ch, flag).
     para (numero i := 0; i < 5; i := i + 1)
         exibir(v[i]).
-    fim
 fim
