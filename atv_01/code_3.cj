@@ -6,7 +6,7 @@ inicio
     resultado := 1.
     
     # Calculando fatorial
-    enquanto (n > 0) faça
+    enquanto (n > 0)
     inicio
         resultado := resultado * n.
         n := n - 1.
