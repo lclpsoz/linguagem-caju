@@ -22,14 +22,17 @@ inicio
     # Lendo valores
     ler(n).
 
-    # Calculando fatorial
-    fat := fatorial(n).
-    exibir(fat).
+    se (nao (n >= 0))
+        exibir('X').
+    senao
+        # Calculando fatorial
+        fat := fatorial(n).
+        exibir(fat).
 
-    # Definindo e exibindo uma palavra
-    palavra[0] := 'C'.
-    palavra[1] := 'a'.
-    palavra[2] := 'j'.
-    palavra[3] := 'u'.
-    exibir(palavra).
+        # Definindo e exibindo uma palavra
+        palavra[0] := 'C'.
+        palavra[1] := 'a'.
+        palavra[2] := 'j'.
+        palavra[3] := 'u'.
+        exibir(palavra).
 fim
