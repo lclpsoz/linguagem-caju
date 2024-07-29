@@ -1,15 +1,17 @@
-#Código 2: Estruturas de Controle e Funções
--> numero soma(numero x, numero y)
+# Código 2: Estruturas de Controle e Funções
+
+numero soma(numero x, numero y)
 inicio
     retorne x + y.
 fim
 
--> vazio exibir_vetor(vetor numero[5] v)
+vazio exibir_vetor(vetor numero[5] v)
 inicio
     para cada (numero elemento : v)
         exibir(elemento).
 fim
 
+-> vazio main()
 inicio
     numero resultado.
     vetor numero[5] v.

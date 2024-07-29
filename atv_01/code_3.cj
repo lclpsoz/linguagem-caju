@@ -1,6 +1,6 @@
 # Código 3: Estruturas de Controle, Comentários, e Procedimentos Primitivos
 
--> numero fatorial(numero n)
+numero fatorial(numero n)
 inicio
     numero resultado.
     resultado := 1.
@@ -15,13 +15,28 @@ inicio
     retorne resultado.
 fim
 
+booleano funcao_xor(booleano a, booleano b)
+inicio
+    se a = b retorne falso.
+    senao retorne verdadeiro.
+fim
+
+
+booleano condicional(booleano a, booleano b)
+inicio
+    se (a e b) retorne verdadeiro.
+    se (a e (nao b)) retorne falso.
+    se ((nao a) e b) retorne verdadeiro.
+    se (nao a e (nao b)) retorne verdadeiro.
+
+-> vazio main()
 inicio
     numero n, fat.
     vetor caractere[4] palavra. # Ajustado para 4 pois "Caju" tem 4 caracteres.
 
     # Lendo valores
     ler(n).
-
+    
     se (nao (n >= 0))
         exibir('X').
     senao

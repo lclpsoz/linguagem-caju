@@ -1,21 +1,24 @@
 # Código 1: Declarações, Atribuições, e Vetores
 
-numero a, b, c.
-vetor numero[4] v.
-caractere ch.
-booleano flag.
+-> vazio main() 
+inicio
+    numero a, b, c.
+    vetor numero[4] v.
+    caractere ch.
+    booleano flag.
 
-a := 10.
-b := 20.
-c := a + b.
-ch := 'z'.
-flag := verdadeiro.
+    a := 10.
+    b := 20.
+    c := a + b.
+    ch := 'z'.
+    flag := verdadeiro.
 
-# Inicializando vetor
-para (numero i := 0; i <= 3; i := i + 1)
-    v[i] := 24 * i / (i + 1).
+    # Inicializando vetor
+    para (numero i := 0; i <= 3; i := i + 1)
+        v[i] := 24 * i / (i + 1).
 
-# Exibindo valores
-exibir(a, b, c, ch, flag).
-para (numero i := 0; i < 4; i := i + 1)
-    exibir(v[i]).
+    # Exibindo valores
+    exibir(a, b, c, ch, flag).
+    para (numero i := 0; i < 4; i := i + 1)
+        exibir(v[i]).
+fim 
