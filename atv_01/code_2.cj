@@ -8,7 +8,6 @@ fim
 inicio
     para cada (numero elemento : v)
         exibir(elemento).
-    fim
 fim
 
 inicio
@@ -19,9 +18,8 @@ inicio
     exibir(resultado).
 
     # Inicializando vetor
-    para (numero i := 0; i < 5; i := i + 1)
+    para (numero i := 4; i >= 0; i := i + 1)
         v[i] := i * 3.
-    fim
 
     # Exibindo vetor
     exibir_vetor(v).
