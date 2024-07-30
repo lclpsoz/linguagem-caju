@@ -15,14 +15,14 @@ inicio
     retorne resultado.
 fim
 
-booleano funcao_xor(booleano a, booleano b)
+booleano funcao_xor(booleano a | booleano b)
 inicio
     se a = b retorne falso.
     senao retorne verdadeiro.
 fim
 
 
-booleano condicional(booleano a, booleano b)
+booleano condicional(booleano a | booleano b)
 inicio
     se (a e b) retorne verdadeiro.
     se (a e (nao b)) retorne falso.

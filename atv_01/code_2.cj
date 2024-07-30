@@ -1,6 +1,6 @@
 # Código 2: Estruturas de Controle e Funções
 
-numero soma(numero x, numero y)
+numero soma(numero x | numero y)
 inicio
     retorne x + y.
 fim
