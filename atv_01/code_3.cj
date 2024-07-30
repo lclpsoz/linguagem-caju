@@ -24,7 +24,7 @@ fim
 
 booleano condicional(booleano a | booleano b)
 inicio
-    se (a e b) retorne verdadeiro.
+    se ((nao a) ou (nao b)) retorne verdadeiro.
     se (a e (nao b)) retorne falso.
     se ((nao a) e b) retorne verdadeiro.
     se (nao a e (nao b)) retorne verdadeiro.
