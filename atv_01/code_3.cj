@@ -32,10 +32,14 @@ inicio
 -> vazio main()
 inicio
     numero n, fat.
+    booleano testar.
     vetor caractere[4] palavra. # Ajustado para 4 pois "Caju" tem 4 caracteres.
 
+    testar := condicional(verdadeiro | verdadeiro).
+
     # Lendo valores
-    ler(n).
+    se (testar)
+        ler(n).
     
     se (nao (n >= 0))
         exibir('X').
