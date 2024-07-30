@@ -1,5 +1,6 @@
 # Código 1: Declarações, Atribuições, e Vetores
 
+-> vazio main() 
 inicio
     numero a, b, c.
     vetor numero[4] v.
@@ -20,4 +21,4 @@ inicio
     exibir(a, b, c, ch, flag).
     para (numero i := 0; i < 4; i := i + 1)
         exibir(v[i]).
-fim
+fim 
