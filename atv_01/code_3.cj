@@ -28,6 +28,7 @@ inicio
     se (a e (nao b)) retorne falso.
     se ((nao a) e b) retorne verdadeiro.
     se (nao a e (nao b)) retorne verdadeiro.
+fim
 
 -> vazio main()
 inicio
