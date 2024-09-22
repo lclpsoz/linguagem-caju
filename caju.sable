@@ -12,24 +12,24 @@ Helpers
  espaco = ' ';
  rc = 13;
  nl = 10;
+ tab = 9;
 
  todos_caracteres = [0..0xffff];
  caractere_simples = [todos_caracteres - [''' + '\']];
- caractere_escape = '\n';
+ caractere_escape = '\' ('n' | 't' | 'r' | '\' | ''' | '"');
 
  nao_nl_rc = [todos_caracteres - [10 + 13]];
  nao_chave = [todos_caracteres - ['{' + '}']];
-
- digito_decimal = digito+;
- parte_fracionaria = virgula digito+;
+ nao_aspas_duplas = [todos_caracteres - '"'];
 
  identificador_corpo = letra | digito | underscore;
 
 Tokens
  identificador = letra identificador_corpo*;
  caractere = aspas_simples (caractere_simples | caractere_escape) aspas_simples;
+ string = aspas_duplas (nao_aspas_duplas | caractere_escape)* aspas_duplas;
  booleano = 'verdadeiro' | 'falso';
- numero = digito_decimal (parte_fracionaria)?;
+ numero = digito+ (virgula digito+)?;
 
  reservada_caractere = 'caractere';
  reservada_booleano = 'booleano';
@@ -60,6 +60,7 @@ Tokens
  op_e = 'e';
  op_ou = 'ou';
  op_atribuicao = ':=';
+ op_retorno_funcao = '->';
 
  ponto = '.';
  virgula = ',';
@@ -69,22 +70,13 @@ Tokens
  fecha_parenteses = ')';
  abre_colchetes = '[';
  fecha_colchetes = ']';
+ barra_vertical = '|';
 
  comentario_linha = '#' nao_nl_rc* (nl | rc);
  comentario_bloco = '{' nao_chave* '}';
- espaco_branco = (espaco | rc | nl)+;
+ vazio = (espaco | rc | nl | tab)+;
 
 Ignored Tokens
-  espaco_branco,
+  vazio,
   comentario_bloco,
   comentario_linha;
- 
-
-
-
-
- 
-
- 
-
-
