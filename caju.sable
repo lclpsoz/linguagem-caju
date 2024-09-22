@@ -113,51 +113,86 @@ Productions
 
   parametros = parametro parametro_cauda*;
   parametro_cauda = barra_vertical parametro;
-  parametro = tipo identificador;
+  parametro = tipo [nome]:identificador;
 
   bloco = reservada_inicio dec_variavel* comando* reservada_fim;
 
-  atrib = var op_atribuicao exp;
+  comando =
+    {se} reservada_se abre_parenteses exp fecha_parenteses [then_part]:comando_sem_senao [else_part]:comando_senao? |
+    {enquanto} reservada_enquanto abre_parenteses exp fecha_parenteses comando_sem_senao |
+    {para} reservada_para abre_parenteses [init]:lista_atrib [cond_sep]:ponto_virgula [cond]:exp [inc_sep]:ponto_virgula [inc]:lista_atrib fecha_parenteses comando_sem_senao |
+    {para_cada} reservada_para_cada abre_parenteses tipo [var]:identificador dois_pontos [container]:identificador fecha_parenteses comando_sem_senao |
+    {simples} comando_simples;
+
+  comando_sem_senao =
+    {bloco} bloco |
+    {simples} comando_simples;
+
+  comando_senao = reservada_senao comando_sem_senao;
+
+  comando_simples =
+    {atribuicao} atrib ponto |
+    {retorne} reservada_retorne [valor]:exp? ponto |
+    {chamada} chamada ponto |
+    {exibir} reservada_exibir abre_parenteses lista_exp? fecha_parenteses ponto |
+    {ler} reservada_ler abre_parenteses lista_var fecha_parenteses ponto;
+
+  atrib = [alvo]:var op_atribuicao [valor]:exp;
 
   lista_atrib = atrib lista_atrib_cauda*;
   lista_atrib_cauda = virgula atrib;
 
-  comando =
-    {se} reservada_se abre_parenteses exp fecha_parenteses comando |
-    {se_senao} reservada_se abre_parenteses exp fecha_parenteses comando reservada_senao comando |
-    {enquanto} reservada_enquanto abre_parenteses exp fecha_parenteses comando |
-    {para} reservada_para abre_parenteses lista_atrib ponto_virgula exp ponto_virgula lista_atrib fecha_parenteses comando |
-    {para_cada} reservada_para_cada abre_parenteses tipo identificador dois_pontos identificador fecha_parenteses comando |
-    {atribuicao} atrib ponto |
-    {retorne} reservada_retorne [exp]:exp? ponto |
-    {bloco} bloco |
-    {chamada} chamada ponto;
-
   var = 
-    {simples} identificador |
-    {indexada} var abre_colchetes exp fecha_colchetes;
+    {simples} identificador var_indexada*;
 
-  exp =
+  var_indexada = abre_colchetes exp fecha_colchetes;
+
+  lista_var = var lista_var_cauda*;
+  lista_var_cauda = virgula var;
+
+  exp = exp_ou;
+
+  exp_ou = [left]:exp_e exp_ou_cauda*;
+  exp_ou_cauda = op_ou [right]:exp_e;
+
+  exp_e = [left]:exp_igualdade exp_e_cauda*;
+  exp_e_cauda = op_e [right]:exp_igualdade;
+
+  exp_igualdade = [left]:exp_relacional exp_igualdade_cauda*;
+  exp_igualdade_cauda = op_igual [right]:exp_relacional;
+
+  exp_relacional = [left]:exp_aditiva exp_relacional_cauda*;
+  exp_relacional_cauda = 
+    {menor} op_menor [right]:exp_aditiva |
+    {maior} op_maior [right]:exp_aditiva |
+    {menor_igual} op_menor_igual [right]:exp_aditiva |
+    {maior_igual} op_maior_igual [right]:exp_aditiva;
+
+  exp_aditiva = [left]:exp_multiplicativa exp_aditiva_cauda*;
+  exp_aditiva_cauda = 
+    {soma} op_mais [right]:exp_multiplicativa |
+    {subtracao} op_menos [right]:exp_multiplicativa;
+
+  exp_multiplicativa = [left]:exp_unaria exp_multiplicativa_cauda*;
+  exp_multiplicativa_cauda = 
+    {multiplicacao} op_mult [right]:exp_unaria |
+    {divisao} op_div [right]:exp_unaria;
+
+  exp_unaria = 
+    {nao} op_nao exp_unaria |
+    {negativo} op_menos exp_unaria |
+    {primaria} exp_primaria;
+
+  exp_primaria =
     {numero} numero |
     {caractere} caractere |
+    {string} string |
     {booleano} booleano |
     {var} var |
-    {parenteses} abre_parenteses exp fecha_parenteses |
     {chamada} chamada |
-    {soma} exp op_mais exp |
-    {subtracao} exp op_menos exp |
-    {multiplicacao} exp op_mult exp |
-    {divisao} exp op_div exp |
-    {igual} exp op_igual exp |
-    {menor_igual} exp op_menor_igual exp |
-    {maior_igual} exp op_maior_igual exp |
-    {menor} exp op_menor exp |
-    {maior} exp op_maior exp |
-    {nao} op_nao exp |
-    {e} exp op_e exp |
-    {ou} exp op_ou exp;
+    {parenteses} abre_parenteses exp fecha_parenteses;
 
-  chamada = identificador abre_parenteses lista_exp? fecha_parenteses;
+  chamada = [func]:identificador abre_parenteses lista_exp? fecha_parenteses;
 
   lista_exp = exp lista_exp_cauda*;
   lista_exp_cauda = barra_vertical exp;
