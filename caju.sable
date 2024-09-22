@@ -80,3 +80,84 @@ Ignored Tokens
   vazio,
   comentario_bloco,
   comentario_linha;
+
+Productions
+  programa = {declaracoes} declaracao*;
+
+  declaracao = 
+    {variavel} dec_variavel |
+    {funcao} dec_funcao;
+
+  dec_variavel = tipo lista_nomes ponto;
+
+  lista_nomes = identificador lista_nomes_cauda*;
+  lista_nomes_cauda = virgula identificador;
+
+  tipo = 
+    {base} tipo_base |
+    {vetor} reservada_vetor tipo_base vetor_dimensoes+;
+
+  tipo_base = 
+    {numero} reservada_numero |
+    {caractere} reservada_caractere |
+    {booleano} reservada_booleano;
+
+  vetor_dimensoes = abre_colchetes exp fecha_colchetes;
+
+  dec_funcao = [seta]:op_retorno_funcao? tipo_retorno identificador 
+               abre_parenteses parametros? fecha_parenteses bloco;
+
+  tipo_retorno = 
+    {tipo} tipo |
+    {vazio} reservada_vazio;
+
+  parametros = parametro parametro_cauda*;
+  parametro_cauda = barra_vertical parametro;
+  parametro = tipo identificador;
+
+  bloco = reservada_inicio dec_variavel* comando* reservada_fim;
+
+  atrib = var op_atribuicao exp;
+
+  lista_atrib = atrib lista_atrib_cauda*;
+  lista_atrib_cauda = virgula atrib;
+
+  comando =
+    {se} reservada_se abre_parenteses exp fecha_parenteses comando |
+    {se_senao} reservada_se abre_parenteses exp fecha_parenteses comando reservada_senao comando |
+    {enquanto} reservada_enquanto abre_parenteses exp fecha_parenteses comando |
+    {para} reservada_para abre_parenteses lista_atrib ponto_virgula exp ponto_virgula lista_atrib fecha_parenteses comando |
+    {para_cada} reservada_para_cada abre_parenteses tipo identificador dois_pontos identificador fecha_parenteses comando |
+    {atribuicao} atrib ponto |
+    {retorne} reservada_retorne [exp]:exp? ponto |
+    {bloco} bloco |
+    {chamada} chamada ponto;
+
+  var = 
+    {simples} identificador |
+    {indexada} var abre_colchetes exp fecha_colchetes;
+
+  exp =
+    {numero} numero |
+    {caractere} caractere |
+    {booleano} booleano |
+    {var} var |
+    {parenteses} abre_parenteses exp fecha_parenteses |
+    {chamada} chamada |
+    {soma} exp op_mais exp |
+    {subtracao} exp op_menos exp |
+    {multiplicacao} exp op_mult exp |
+    {divisao} exp op_div exp |
+    {igual} exp op_igual exp |
+    {menor_igual} exp op_menor_igual exp |
+    {maior_igual} exp op_maior_igual exp |
+    {menor} exp op_menor exp |
+    {maior} exp op_maior exp |
+    {nao} op_nao exp |
+    {e} exp op_e exp |
+    {ou} exp op_ou exp;
+
+  chamada = identificador abre_parenteses lista_exp? fecha_parenteses;
+
+  lista_exp = exp lista_exp_cauda*;
+  lista_exp_cauda = barra_vertical exp;
