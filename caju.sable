@@ -25,7 +25,6 @@ Helpers
 
  identificador_corpo = letra | digito | underscore;
 
-
 Tokens
  identificador = letra identificador_corpo*;
  caractere = aspas_simples (caractere_simples | caractere_escape) aspas_simples;
@@ -45,6 +44,8 @@ Tokens
  reservada_enquanto = 'enquanto';
  reservada_para = 'para';
  reservada_para_cada = 'para cada';
+ reservada_exibir = 'exibir';
+ reservada_ler = 'ler';
 
  op_mais = '+';
  op_menos = '-';
@@ -71,10 +72,12 @@ Tokens
 
  comentario_linha = '#' nao_nl_rc* (nl | rc);
  comentario_bloco = '{' nao_chave* '}';
-
  espaco_branco = (espaco | rc | nl)+;
 
-
+Ignored Tokens
+  espaco_branco,
+  comentario_bloco,
+  comentario_linha;
  
 
 
