@@ -29,7 +29,7 @@ Tokens
  caractere = aspas_simples (caractere_simples | caractere_escape) aspas_simples;
  string = aspas_duplas (nao_aspas_duplas | caractere_escape)* aspas_duplas;
  booleano = 'verdadeiro' | 'falso';
- numero = digito+ (virgula digito+)?;
+ numero = digito+ (',' digito+)?;
 
  reservada_caractere = 'caractere';
  reservada_booleano = 'booleano';
@@ -72,9 +72,9 @@ Tokens
  fecha_colchetes = ']';
  barra_vertical = '|';
 
- comentario_linha = '#' nao_nl_rc* (nl | rc);
- comentario_bloco = '{' nao_chave* '}';
- vazio = (espaco | rc | nl | tab)+;
+  comentario_linha = '#' nao_nl_rc*;
+  comentario_bloco = '{' nao_chave* '}';
+  vazio = (espaco | rc | nl | tab)+;
 
 Ignored Tokens
   vazio,
