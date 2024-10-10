@@ -1,4 +1,4 @@
-# Código 3: Estruturas de Controle, Comentários, e Procedimentos Primitivos
+# Codigo 3 Estruturas de Controle, Comentarios, e Procedimentos Primitivos
 
 numero fatorial(numero n)
 inicio
