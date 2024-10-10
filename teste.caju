@@ -1,6 +1,4 @@
-# Codigo 1 Declaracoes, Atribuicoes, e Vetores
-
--> vazio main() 
+-> vazio main()
 inicio
     numero a, b, c.
     vetor numero[4] v.
