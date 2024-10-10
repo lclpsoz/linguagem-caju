@@ -4,3 +4,6 @@ sint
 calculadora
 bemtivi.sable
 calculadora.sable
+*.class
+*.java
+*.dat
