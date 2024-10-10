@@ -1,4 +1,4 @@
-# Código 2: Estruturas de Controle e Funções
+# Codigo 2 Estruturas de Controle e Funcoes
 
 numero soma(numero x | numero y)
 inicio

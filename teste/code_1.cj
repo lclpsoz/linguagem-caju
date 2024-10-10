@@ -1,4 +1,4 @@
-# Código 1: Declarações, Atribuições, e Vetores
+# Codigo 1 Declaracoes, Atribuicoes, e Vetores
 
 -> vazio main() 
 inicio
