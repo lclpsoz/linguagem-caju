@@ -7,14 +7,8 @@ import caju.parser.*;
 import java.io.*;
 
 public class Main {
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Uso: java caju.CajuCompiler <caminho/para/arquivo.caju>");
-            System.exit(1);
-        }
-
-        
-        String filePath = (args.length > 0) ? args[0] : "teste.caju";
+    public static void main(String[] args) {    
+        String filePath = (args.length > 0) ? args[0] : "test/teste.caju";
         System.out.println("Analisando o arquivo '" + filePath + "'...");
         File inputFile = new File(filePath);
 
