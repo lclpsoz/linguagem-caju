@@ -1,6 +1,4 @@
 *.pdf
-caju.tmp.sable
-sint
-calculadora
-bemtivi.sable
-calculadora.sable
+.idea
+*.class
+
