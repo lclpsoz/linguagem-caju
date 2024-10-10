@@ -2,3 +2,5 @@
 .idea
 *.class
 
+caju/*
+!caju/*.java

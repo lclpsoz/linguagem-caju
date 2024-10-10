@@ -13,7 +13,9 @@ public class Main {
             System.exit(1);
         }
 
-        String filePath = "teste.caju";
+        
+        String filePath = (args.length > 0) ? args[0] : "teste.caju";
+        System.out.println("Analisando o arquivo '" + filePath + "'...");
         File inputFile = new File(filePath);
 
         if (!inputFile.exists() || !inputFile.isFile()) {
