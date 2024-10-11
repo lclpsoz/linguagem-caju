@@ -84,12 +84,12 @@ Ignored Tokens
 
 Productions
 
-  programa {-> a_programa} = 
-    {declaracoes} declaracao* {-> [declaracao.a_declaracao]};
+programa {-> programa} = 
+    declaracao* {-> New programa.declaracoes([declaracao.declaracao])};
 
-  declaracao {-> a_declaracao} = 
-    {variavel} dec_variavel {-> New a_declaracao.a_variavel(dec_variavel.a_dec_variavel)} |
-    {funcao} dec_funcao {-> New a_declaracao.a_funcao(dec_funcao.a_dec_funcao)};
+ declaracao {-> declaracao} = 
+    {variavel} dec_variavel {-> New declaracao.variavel(dec_variavel.dec_variavel)} |
+    {funcao} dec_funcao {-> New declaracao.funcao(dec_funcao.dec_funcao)};
 
   dec_variavel {-> a_dec_variavel} = 
     tipo lista_nomes ponto {-> New a_dec_variavel.a_tipo_lista_nomes(tipo.a_tipo, lista_nomes.a_lista_nomes)};
@@ -100,10 +100,9 @@ Productions
   lista_nomes_cauda {-> a_lista_nomes_cauda} = 
     virgula identificador {-> New a_lista_nomes_cauda.a_virgula_identificador(identificador.a_identificador)};
 
- tipo {-> a_tipo} = 
-  {base} tipo_base {-> New a_tipo.a_base(tipo_base)} | 
-  {vetor} reservada_vetor tipo_base vetor_dimensoes+ {-> New a_tipo.a_vetor(tipo_base, [vetor_dimensoes])};
-
+  tipo {-> a_tipo} = 
+    {base} tipo_base {-> New a_tipo.a_base(tipo_base)} | 
+    {vetor} reservada_vetor tipo_base vetor_dimensoes+ {-> New a_tipo.a_vetor(tipo_base, [vetor_dimensoes])};
 
   tipo_base {-> a_tipo_base} = 
     {numero} reservada_numero {-> New a_tipo_base.a_numero()} |
@@ -116,11 +115,11 @@ Productions
   dec_funcao {-> a_dec_funcao} = 
     [seta]:op_retorno_funcao? tipo_retorno identificador 
     abre_parenteses parametros? fecha_parenteses bloco 
-    {-> New a_dec_funcao.a_funcao([op_retorno_funcao.a_op_retorno_funcao], tipo_retorno.a_tipo_retorno, identificador.a_identificador, [parametros.a_parametros], bloco.a_bloco)};
+    {-> New a_dec_funcao.a_func([op_retorno_funcao.a_op_retorno_funcao], tipo_retorno.a_tipo_retorno, identificador.a_identificador, [parametros.a_parametros], bloco.a_bloco)};
 
   tipo_retorno {-> a_tipo_retorno} = 
     {tipo} tipo {-> New a_tipo_retorno.a_tipo(tipo.a_tipo)} |
-    {vazio} reservada_vazio {-> a_tipo_retorno.a_vazio};
+    {vazio} reservada_vazio {-> New a_tipo_retorno.a_vazio()};
 
   parametros {-> a_parametros} = 
     parametro parametro_cauda* {-> New a_parametros.a_parametro([parametro.a_parametro, parametro_cauda.a_parametro_cauda])};
@@ -134,16 +133,16 @@ Productions
   bloco {-> a_bloco} = 
     reservada_inicio dec_variavel* comando* reservada_fim {-> New a_bloco.a_bloco([dec_variavel.a_dec_variavel], [comando.a_comando])};
 
-  comando {-> a_comando} = 
-    {se} reservada_se abre_parenteses exp fecha_parenteses [then_part]:comando_sem_senao [else_part]:comando_senao? 
-    {-> New a_comando.a_se(exp.a_exp, then_part.a_comando_sem_senao, [else_part.a_comando_senao])} |
-    {enquanto} reservada_enquanto abre_parenteses exp fecha_parenteses comando_sem_senao 
-    {-> New a_comando.a_enquanto(exp.a_exp, comando_sem_senao.a_comando_sem_senao)} |
-    {para} reservada_para abre_parenteses [init]:lista_atrib [cond_sep]:ponto_virgula [cond]:exp [inc_sep]:ponto_virgula [inc]:lista_atrib fecha_parenteses comando_sem_senao 
-    {-> New a_comando.a_para(lista_atrib.a_lista_atrib, exp.a_exp, lista_atrib.a_lista_atrib, comando_sem_senao.a_comando_sem_senao)} |
-    {para_cada} reservada_para_cada abre_parenteses tipo [var]:identificador dois_pontos [container]:identificador fecha_parenteses comando_sem_senao 
-    {-> New a_comando.a_para_cada(tipo.a_tipo, var.a_identificador, container.a_identificador, comando_sem_senao.a_comando_sem_senao)} |
-    {simples} comando_simples {-> New a_comando.a_simples(comando_simples.a_comando_simples)};
+ comando {-> a_comando} = 
+  {se} reservada_se abre_parenteses exp fecha_parenteses [then_part]:comando_sem_senao [else_part]:comando_senao? 
+  {-> New a_comando.a_se(exp.a_exp, then_part.a_comando_sem_senao, [else_part.a_comando_senao])} |
+  {enquanto} reservada_enquanto abre_parenteses exp fecha_parenteses comando_sem_senao 
+  {-> New a_comando.a_enquanto(exp.a_exp, comando_sem_senao.a_comando_sem_senao)} |
+  {para} reservada_para abre_parenteses [init]:lista_atrib [cond_sep]:ponto_virgula [cond]:exp [inc_sep]:ponto_virgula [inc]:lista_atrib fecha_parenteses comando_sem_senao 
+  {-> New a_comando.a_para([init.a_lista_atrib], exp.a_exp, [inc.a_lista_atrib], comando_sem_senao.a_comando_sem_senao)} | 
+  {para_cada} reservada_para_cada abre_parenteses tipo [var]:identificador dois_pontos [container]:identificador fecha_parenteses comando_sem_senao 
+  {-> New a_comando.a_para_cada(tipo.a_tipo, var.a_identificador, container.a_identificador, comando_sem_senao.a_comando_sem_senao)} |
+  {simples} comando_simples {-> New a_comando.a_simples(comando_simples.a_comando_simples)};
 
   comando_sem_senao {-> a_comando_sem_senao} = 
     {bloco} bloco {-> New a_comando_sem_senao.a_bloco(bloco.a_bloco)} |
@@ -181,7 +180,7 @@ Productions
     virgula var {-> New a_lista_var_cauda.a_virgula_var(var.a_var)};
 
   exp {-> a_exp} = 
-    exp_ou {-> New a_exp.a_exp_ou(exp_ou.a_exp_ou)};
+    exp_ou {-> New a_exp.a_exp_ou(exp_ou)};
 
   exp_ou {-> a_exp_ou} = 
     [left]:exp_e exp_ou_cauda* {-> New a_exp_ou.a_left(exp_e.a_exp_e, [exp_ou_cauda.a_exp_ou_cauda])};
@@ -195,112 +194,202 @@ Productions
   exp_e_cauda {-> a_exp_e_cauda} = 
     op_e [right]:exp_igualdade {-> New a_exp_e_cauda.a_op_e(right.a_exp_igualdade)};
 
+  exp_igualdade {-> a_exp_igualdade} = 
+    [left]:exp_relacional exp_igualdade_cauda* {-> New a_exp_igualdade.a_left(exp_relacional.a_exp_relacional, [exp_igualdade_cauda.a_exp_igualdade_cauda])};
 
+  exp_igualdade_cauda {-> a_exp_igualdade_cauda} = 
+    op_igual [right]:exp_relacional {-> New a_exp_igualdade_cauda.a_op_igual(right.a_exp_relacional)};
+
+  exp_relacional {-> a_exp_relacional} = 
+    [left]:exp_aditiva exp_relacional_cauda* {-> New a_exp_relacional.a_left(exp_aditiva.a_exp_aditiva, [exp_relacional_cauda.a_exp_relacional_cauda])};
+
+  exp_relacional_cauda {-> a_exp_relacional_cauda} = 
+    {menor} op_menor [right]:exp_aditiva |
+    {maior} op_maior [right]:exp_aditiva |
+    {menor_igual} op_menor_igual [right]:exp_aditiva |
+    {maior_igual} op_maior_igual [right]:exp_aditiva;
+
+  exp_aditiva {-> a_exp_aditiva} = 
+    [left]:exp_multiplicativa exp_aditiva_cauda* {-> New a_exp_aditiva.a_left(exp_multiplicativa.a_exp_multiplicativa, [exp_aditiva_cauda.a_exp_aditiva_cauda])};
+
+  exp_aditiva_cauda {-> a_exp_aditiva_cauda} = 
+    {soma} op_mais [right]:exp_multiplicativa |
+    {subtracao} op_menos [right]:exp_multiplicativa;
+
+  exp_multiplicativa {-> a_exp_multiplicativa} = 
+    [left]:exp_unaria exp_multiplicativa_cauda* {-> New a_exp_multiplicativa.a_left(exp_unaria.a_exp_unaria, [exp_multiplicativa_cauda.a_exp_multiplicativa_cauda])};
+
+  exp_multiplicativa_cauda {-> a_exp_multiplicativa_cauda} = 
+    {multiplicacao} op_mult [right]:exp_unaria |
+    {divisao} op_div [right]:exp_unaria;
+
+  exp_unaria {-> a_exp_unaria} = 
+    {nao} op_nao exp_unaria {-> New a_exp_unaria.a_nao(exp_unaria.a_exp_unaria) }|
+    {negativo} op_menos exp_unaria {-> New a_exp_unaria.a_negativo(exp_unaria.a_exp_unaria)} |
+    {primaria} exp_primaria {-> New a_exp_unaria.a_primaria(exp_primaria.a_exp_primaria)};
+
+  exp_primaria {-> a_exp_primaria} =
+    {numero} numero {-> New a_exp_primaria.a_numero(numero)} |
+    {caractere} caractere {-> New a_exp_primaria.a_caractere(caractere)} |
+    {string} string {-> New a_exp_primaria.a_string(string)} |
+    {booleano} booleano {-> New a_exp_primaria.a_booleano(booleano)} |
+    {var} var {-> New a_exp_primaria.a_var(var)} |
+    {chamada} chamada {-> New a_exp_primaria.a_chamada(chamada)} |
+    {parenteses} abre_parenteses exp fecha_parenteses {-> exp.a_exp};
+
+  chamada {-> a_chamada} = 
+    [func]:identificador abre_parenteses lista_exp? fecha_parenteses {-> New a_chamada.a_func(func.a_identificador, [lista_exp.a_lista_exp])};
+
+  lista_exp {-> a_lista_exp} = 
+    exp lista_exp_cauda* {-> New a_lista_exp.a_lista_exp([exp.a_exp, lista_exp_cauda.a_lista_exp_cauda])};
+
+  lista_exp_cauda {-> a_lista_exp_cauda} = 
+    barra_vertical exp {-> New a_lista_exp_cauda.a_barra_vertical(exp.a_exp)};
   
 
 Abstract Syntax Tree
 
-  a_programa = {declaracoes} a_declaracao*;
+  // Abstract Syntax Tree (AST)
 
-  a_declaracao = 
+a_programa = {declaracoes} a_declaracao*;
+
+a_declaracao = 
     {variavel} a_dec_variavel |
     {funcao} a_dec_funcao;
 
-  a_dec_variavel = a_tipo a_lista_nomes;
+a_dec_variavel = 
+    a_tipo a_lista_nomes;
 
-  a_lista_nomes = a_identificador a_lista_nomes_cauda*;
-  a_lista_nomes_cauda = a_identificador;
+a_lista_nomes = 
+    a_identificador a_lista_nomes_cauda*;
 
-  a_tipo = 
+a_lista_nomes_cauda = 
+    a_identificador;
+
+a_tipo = 
     {base} a_tipo_base |
     {vetor} a_tipo_base a_vetor_dimensoes+;
 
-  a_tipo_base = 
+a_tipo_base = 
     {numero} a_numero |
     {caractere} a_caractere |
     {booleano} a_booleano;
 
-  a_vetor_dimensoes = a_exp;
+a_vetor_dimensoes = 
+    a_exp;
 
-  a_dec_funcao = a_op_retorno_funcao? a_tipo_retorno a_identificador a_parametros? a_bloco;
+a_dec_funcao = 
+    a_op_retorno_funcao? a_tipo_retorno a_identificador 
+    a_parametros? a_bloco;
 
-  a_tipo_retorno = 
+a_tipo_retorno = 
     {tipo} a_tipo |
     {vazio} a_vazio;
 
-  a_parametros = a_parametro a_parametro_cauda*;
-  a_parametro_cauda = a_parametro;
-  a_parametro = a_tipo a_identificador;
+a_parametros = 
+    a_parametro a_parametro_cauda*;
 
-  a_bloco = a_dec_variavel* a_comando*;
+a_parametro_cauda = 
+    a_parametro;
 
-  a_comando =
+a_parametro = 
+    a_tipo a_identificador;
+
+a_bloco = 
+    a_dec_variavel* a_comando*;
+
+a_comando =
     {se} a_exp a_comando_sem_senao a_comando_senao? |
     {enquanto} a_exp a_comando_sem_senao |
     {para} a_lista_atrib a_exp a_lista_atrib a_comando_sem_senao |
     {para_cada} a_tipo a_identificador a_identificador a_comando_sem_senao |
     {simples} a_comando_simples;
 
-  a_comando_sem_senao =
+a_comando_sem_senao =
     {bloco} a_bloco |
     {simples} a_comando_simples;
 
-  a_comando_senao = a_comando_sem_senao;
+a_comando_senao = 
+    a_comando_sem_senao;
 
-  a_comando_simples =
+a_comando_simples =
     {atribuicao} a_atrib |
     {retorne} a_exp? |
     {chamada} a_chamada |
     {exibir} a_lista_exp? |
     {ler} a_lista_var;
 
-  a_atrib = a_var a_exp;
+a_atrib = 
+    a_var a_exp;
 
-  a_lista_atrib = a_atrib a_lista_atrib_cauda*;
-  a_lista_atrib_cauda = a_atrib;
+a_lista_atrib = 
+    a_atrib a_lista_atrib_cauda*;
 
-  a_var = 
+a_lista_atrib_cauda = 
+    a_atrib;
+
+a_var = 
     {simples} a_identificador a_var_indexada*;
 
-  a_var_indexada = a_exp;
+a_var_indexada = 
+    a_exp;
 
-  a_lista_var = a_var a_lista_var_cauda*;
-  a_lista_var_cauda = a_var;
+a_lista_var = 
+    a_var a_lista_var_cauda*;
 
-  a_exp = a_exp_ou;
+a_lista_var_cauda = 
+    a_var;
 
-  a_exp_ou = a_exp_e a_exp_ou_cauda*;
-  a_exp_ou_cauda = a_exp_e;
+a_exp = 
+    a_exp_ou;
 
-  a_exp_e = a_exp_igualdade a_exp_e_cauda*;
-  a_exp_e_cauda = a_exp_igualdade;
+a_exp_ou = 
+    a_exp_e a_exp_ou_cauda*;
 
-  a_exp_igualdade = a_exp_relacional a_exp_igualdade_cauda*;
-  a_exp_igualdade_cauda = a_exp_relacional;
+a_exp_ou_cauda = 
+    a_exp_e;
 
-  a_exp_relacional = a_exp_aditiva a_exp_relacional_cauda*;
-  a_exp_relacional_cauda = 
+a_exp_e = 
+    a_exp_igualdade a_exp_e_cauda*;
+
+a_exp_e_cauda = 
+    a_exp_igualdade;
+
+a_exp_igualdade = 
+    a_exp_relacional a_exp_igualdade_cauda*;
+
+a_exp_igualdade_cauda = 
+    a_exp_relacional;
+
+a_exp_relacional = 
+    a_exp_aditiva a_exp_relacional_cauda*;
+
+a_exp_relacional_cauda = 
     {menor} a_exp_aditiva |
     {maior} a_exp_aditiva |
     {menor_igual} a_exp_aditiva |
     {maior_igual} a_exp_aditiva;
 
-  a_exp_aditiva = a_exp_multiplicativa a_exp_aditiva_cauda*;
-  a_exp_aditiva_cauda = 
+a_exp_aditiva = 
+    a_exp_multiplicativa a_exp_aditiva_cauda*;
+
+a_exp_aditiva_cauda = 
     {soma} a_exp_multiplicativa |
     {subtracao} a_exp_multiplicativa;
 
-  a_exp_multiplicativa = a_exp_unaria a_exp_multiplicativa_cauda*;
-  a_exp_multiplicativa_cauda = 
+a_exp_multiplicativa = 
+    a_exp_unaria a_exp_multiplicativa_cauda*;
+
+a_exp_multiplicativa_cauda = 
     {multiplicacao} a_exp_unaria |
     {divisao} a_exp_unaria;
 
-  a_exp_unaria = 
+a_exp_unaria = 
     {nao} a_exp_unaria |
     {negativo} a_exp_unaria |
     {primaria} a_exp_primaria;
 
-  a_exp_primaria =
+a_exp_primaria =
     {numero} a_numero |
     {caractere} a_caractere |
     {string} a_string |
@@ -309,7 +398,11 @@ Abstract Syntax Tree
     {chamada} a_chamada |
     {parenteses} a_exp;
 
-  a_chamada = a_identificador a_lista_exp?;
+a_chamada = 
+    a_identificador a_lista_exp?;
 
-  a_lista_exp = a_exp a_lista_exp_cauda*;
-  a_lista_exp_cauda = a_exp;
+a_lista_exp = 
+    a_exp a_lista_exp_cauda*;
+
+a_lista_exp_cauda = 
+    a_exp;
