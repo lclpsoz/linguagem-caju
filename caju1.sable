@@ -1,0 +1,315 @@
+Package caju;
+
+Helpers
+ digito = ['0' .. '9'];
+ letra = ['a' .. 'z'] | ['A' .. 'Z'];
+ underscore = '_';
+
+ aspas_simples = ''';
+ aspas_duplas = '"';
+ virgula = ',';
+
+ espaco = ' ';
+ rc = 13;
+ nl = 10;
+ tab = 9;
+
+ todos_caracteres = [0..0xffff];
+ caractere_simples = [todos_caracteres - [''' + '\']];
+ caractere_escape = '\' ('n' | 't' | 'r' | '\' | ''' | '"');
+
+ nao_nl_rc = [todos_caracteres - [10 + 13]];
+ nao_chave = [todos_caracteres - ['{' + '}']];
+ nao_aspas_duplas = [todos_caracteres - '"'];
+
+ identificador_corpo = letra | digito | underscore;
+
+Tokens
+
+ reservada_caractere = 'caractere';
+ reservada_booleano = 'booleano';
+ reservada_numero = 'numero';
+ reservada_vetor = 'vetor';
+ reservada_retorne = 'retorne';
+ reservada_vazio = 'vazio';
+ reservada_inicio = 'inicio';
+ reservada_fim = 'fim';
+ reservada_se = 'se';
+ reservada_senao = 'senao';
+ reservada_enquanto = 'enquanto';
+ reservada_para = 'para';
+ reservada_para_cada = 'para cada';
+ reservada_exibir = 'exibir';
+ reservada_ler = 'ler';
+
+ identificador = letra identificador_corpo*;
+ caractere = aspas_simples (caractere_simples | caractere_escape) aspas_simples;
+ string = aspas_duplas (nao_aspas_duplas | caractere_escape)* aspas_duplas;
+ booleano = 'verdadeiro' | 'falso';
+ numero = digito+ (virgula digito+)?;
+
+ op_mais = '+';
+ op_menos = '-';
+ op_mult = '*';
+ op_div = '/';
+ op_maior = '>';
+ op_menor = '<';
+ op_maior_igual = '>=';
+ op_menor_igual = '<=';
+ op_igual = '=';
+ op_nao = 'nao';
+ op_e = 'e';
+ op_ou = 'ou';
+ op_atribuicao = ':=';
+ op_retorno_funcao = '->';
+
+ ponto = '.';
+ virgula = ',';
+ dois_pontos = ':';
+ ponto_virgula = ';';
+ abre_parenteses = '(';
+ fecha_parenteses = ')';
+ abre_colchetes = '[';
+ fecha_colchetes = ']';
+ barra_vertical = '|';
+
+ comentario_linha = '#' nao_nl_rc* (nl | rc);
+ comentario_bloco = '{' nao_chave* '}';
+ vazio = (espaco | rc | nl | tab)+;
+
+Ignored Tokens
+  vazio,
+  comentario_bloco,
+  comentario_linha;  
+
+Productions
+
+  programa {-> a_programa} = 
+    {declaracoes} declaracao* {-> [declaracao.a_declaracao]};
+
+  declaracao {-> a_declaracao} = 
+    {variavel} dec_variavel {-> New a_declaracao.a_variavel(dec_variavel.a_dec_variavel)} |
+    {funcao} dec_funcao {-> New a_declaracao.a_funcao(dec_funcao.a_dec_funcao)};
+
+  dec_variavel {-> a_dec_variavel} = 
+    tipo lista_nomes ponto {-> New a_dec_variavel.a_tipo_lista_nomes(tipo.a_tipo, lista_nomes.a_lista_nomes)};
+
+  lista_nomes {-> a_lista_nomes} = 
+    identificador lista_nomes_cauda* {-> New a_lista_nomes.a_identificador_lista(identificador.a_identificador, [lista_nomes_cauda.a_lista_nomes_cauda])};
+
+  lista_nomes_cauda {-> a_lista_nomes_cauda} = 
+    virgula identificador {-> New a_lista_nomes_cauda.a_virgula_identificador(identificador.a_identificador)};
+
+ tipo {-> a_tipo} = 
+  {base} tipo_base {-> New a_tipo.a_base(tipo_base)} | 
+  {vetor} reservada_vetor tipo_base vetor_dimensoes+ {-> New a_tipo.a_vetor(tipo_base, [vetor_dimensoes])};
+
+
+  tipo_base {-> a_tipo_base} = 
+    {numero} reservada_numero {-> New a_tipo_base.a_numero()} |
+    {caractere} reservada_caractere {-> New a_tipo_base.a_caractere()} |
+    {booleano} reservada_booleano {-> New a_tipo_base.a_booleano()};
+
+  vetor_dimensoes {-> a_vetor_dimensoes} = 
+    abre_colchetes exp fecha_colchetes {-> New a_vetor_dimensoes.a_dimensao(exp.a_exp)};
+
+  dec_funcao {-> a_dec_funcao} = 
+    [seta]:op_retorno_funcao? tipo_retorno identificador 
+    abre_parenteses parametros? fecha_parenteses bloco 
+    {-> New a_dec_funcao.a_funcao([op_retorno_funcao.a_op_retorno_funcao], tipo_retorno.a_tipo_retorno, identificador.a_identificador, [parametros.a_parametros], bloco.a_bloco)};
+
+  tipo_retorno {-> a_tipo_retorno} = 
+    {tipo} tipo {-> New a_tipo_retorno.a_tipo(tipo.a_tipo)} |
+    {vazio} reservada_vazio {-> a_tipo_retorno.a_vazio};
+
+  parametros {-> a_parametros} = 
+    parametro parametro_cauda* {-> New a_parametros.a_parametro([parametro.a_parametro, parametro_cauda.a_parametro_cauda])};
+
+  parametro_cauda {-> a_parametro_cauda} = 
+    barra_vertical parametro {-> New a_parametro_cauda.a_barra_parametro(parametro.a_parametro)};
+
+  parametro {-> a_parametro} = 
+    tipo [nome]:identificador {-> New a_parametro.a_tipo_identificador(tipo.a_tipo, identificador.a_identificador)};
+
+  bloco {-> a_bloco} = 
+    reservada_inicio dec_variavel* comando* reservada_fim {-> New a_bloco.a_bloco([dec_variavel.a_dec_variavel], [comando.a_comando])};
+
+  comando {-> a_comando} = 
+    {se} reservada_se abre_parenteses exp fecha_parenteses [then_part]:comando_sem_senao [else_part]:comando_senao? 
+    {-> New a_comando.a_se(exp.a_exp, then_part.a_comando_sem_senao, [else_part.a_comando_senao])} |
+    {enquanto} reservada_enquanto abre_parenteses exp fecha_parenteses comando_sem_senao 
+    {-> New a_comando.a_enquanto(exp.a_exp, comando_sem_senao.a_comando_sem_senao)} |
+    {para} reservada_para abre_parenteses [init]:lista_atrib [cond_sep]:ponto_virgula [cond]:exp [inc_sep]:ponto_virgula [inc]:lista_atrib fecha_parenteses comando_sem_senao 
+    {-> New a_comando.a_para(lista_atrib.a_lista_atrib, exp.a_exp, lista_atrib.a_lista_atrib, comando_sem_senao.a_comando_sem_senao)} |
+    {para_cada} reservada_para_cada abre_parenteses tipo [var]:identificador dois_pontos [container]:identificador fecha_parenteses comando_sem_senao 
+    {-> New a_comando.a_para_cada(tipo.a_tipo, var.a_identificador, container.a_identificador, comando_sem_senao.a_comando_sem_senao)} |
+    {simples} comando_simples {-> New a_comando.a_simples(comando_simples.a_comando_simples)};
+
+  comando_sem_senao {-> a_comando_sem_senao} = 
+    {bloco} bloco {-> New a_comando_sem_senao.a_bloco(bloco.a_bloco)} |
+    {simples} comando_simples {-> New a_comando_sem_senao.a_simples(comando_simples.a_comando_simples)};
+
+  comando_senao {-> a_comando_senao} = 
+    reservada_senao comando_sem_senao {-> New a_comando_senao.a_senao(comando_sem_senao.a_comando_sem_senao)};
+
+  comando_simples {-> a_comando_simples} = 
+    {atribuicao} atrib ponto {-> New a_comando_simples.a_atribuicao(atrib.a_atrib)} |
+    {retorne} reservada_retorne [valor]:exp? ponto {-> New a_comando_simples.a_retorne([valor.a_exp])} |
+    {chamada} chamada ponto {-> New a_comando_simples.a_chamada(chamada.a_chamada)} |
+    {exibir} reservada_exibir abre_parenteses lista_exp? fecha_parenteses ponto {-> New a_comando_simples.a_exibir([lista_exp.a_lista_exp])} |
+    {ler} reservada_ler abre_parenteses lista_var fecha_parenteses ponto {-> New a_comando_simples.a_ler(lista_var.a_lista_var)};
+
+  atrib {-> a_atrib} = 
+    [alvo]:var op_atribuicao [valor]:exp {-> New a_atrib.a_alvo_valor(var.a_var, exp.a_exp)};
+
+  lista_atrib {-> a_lista_atrib} = 
+    atrib lista_atrib_cauda* {-> New a_lista_atrib.a_atrib([atrib.a_atrib, lista_atrib_cauda.a_lista_atrib_cauda])};
+
+  lista_atrib_cauda {-> a_lista_atrib_cauda} = 
+    virgula atrib {-> New a_lista_atrib_cauda.a_virgula_atrib(atrib.a_atrib)};
+
+  var {-> a_var} = 
+    {simples} identificador var_indexada* {-> New a_var.a_simples(identificador.a_identificador, [var_indexada.a_var_indexada])};
+
+  var_indexada {-> a_var_indexada} = 
+    abre_colchetes exp fecha_colchetes {-> New a_var_indexada.a_exp(exp.a_exp)};
+
+  lista_var {-> a_lista_var} = 
+    var lista_var_cauda* {-> New a_lista_var.a_var([var.a_var, lista_var_cauda.a_lista_var_cauda])};
+
+  lista_var_cauda {-> a_lista_var_cauda} = 
+    virgula var {-> New a_lista_var_cauda.a_virgula_var(var.a_var)};
+
+  exp {-> a_exp} = 
+    exp_ou {-> New a_exp.a_exp_ou(exp_ou.a_exp_ou)};
+
+  exp_ou {-> a_exp_ou} = 
+    [left]:exp_e exp_ou_cauda* {-> New a_exp_ou.a_left(exp_e.a_exp_e, [exp_ou_cauda.a_exp_ou_cauda])};
+
+  exp_ou_cauda {-> a_exp_ou_cauda} = 
+    op_ou [right]:exp_e {-> New a_exp_ou_cauda.a_op_ou(right.a_exp_e)};
+
+  exp_e {-> a_exp_e} = 
+    [left]:exp_igualdade exp_e_cauda* {-> New a_exp_e.a_left(exp_igualdade.a_exp_igualdade, [exp_e_cauda.a_exp_e_cauda])};
+
+  exp_e_cauda {-> a_exp_e_cauda} = 
+    op_e [right]:exp_igualdade {-> New a_exp_e_cauda.a_op_e(right.a_exp_igualdade)};
+
+
+  
+
+Abstract Syntax Tree
+
+  a_programa = {declaracoes} a_declaracao*;
+
+  a_declaracao = 
+    {variavel} a_dec_variavel |
+    {funcao} a_dec_funcao;
+
+  a_dec_variavel = a_tipo a_lista_nomes;
+
+  a_lista_nomes = a_identificador a_lista_nomes_cauda*;
+  a_lista_nomes_cauda = a_identificador;
+
+  a_tipo = 
+    {base} a_tipo_base |
+    {vetor} a_tipo_base a_vetor_dimensoes+;
+
+  a_tipo_base = 
+    {numero} a_numero |
+    {caractere} a_caractere |
+    {booleano} a_booleano;
+
+  a_vetor_dimensoes = a_exp;
+
+  a_dec_funcao = a_op_retorno_funcao? a_tipo_retorno a_identificador a_parametros? a_bloco;
+
+  a_tipo_retorno = 
+    {tipo} a_tipo |
+    {vazio} a_vazio;
+
+  a_parametros = a_parametro a_parametro_cauda*;
+  a_parametro_cauda = a_parametro;
+  a_parametro = a_tipo a_identificador;
+
+  a_bloco = a_dec_variavel* a_comando*;
+
+  a_comando =
+    {se} a_exp a_comando_sem_senao a_comando_senao? |
+    {enquanto} a_exp a_comando_sem_senao |
+    {para} a_lista_atrib a_exp a_lista_atrib a_comando_sem_senao |
+    {para_cada} a_tipo a_identificador a_identificador a_comando_sem_senao |
+    {simples} a_comando_simples;
+
+  a_comando_sem_senao =
+    {bloco} a_bloco |
+    {simples} a_comando_simples;
+
+  a_comando_senao = a_comando_sem_senao;
+
+  a_comando_simples =
+    {atribuicao} a_atrib |
+    {retorne} a_exp? |
+    {chamada} a_chamada |
+    {exibir} a_lista_exp? |
+    {ler} a_lista_var;
+
+  a_atrib = a_var a_exp;
+
+  a_lista_atrib = a_atrib a_lista_atrib_cauda*;
+  a_lista_atrib_cauda = a_atrib;
+
+  a_var = 
+    {simples} a_identificador a_var_indexada*;
+
+  a_var_indexada = a_exp;
+
+  a_lista_var = a_var a_lista_var_cauda*;
+  a_lista_var_cauda = a_var;
+
+  a_exp = a_exp_ou;
+
+  a_exp_ou = a_exp_e a_exp_ou_cauda*;
+  a_exp_ou_cauda = a_exp_e;
+
+  a_exp_e = a_exp_igualdade a_exp_e_cauda*;
+  a_exp_e_cauda = a_exp_igualdade;
+
+  a_exp_igualdade = a_exp_relacional a_exp_igualdade_cauda*;
+  a_exp_igualdade_cauda = a_exp_relacional;
+
+  a_exp_relacional = a_exp_aditiva a_exp_relacional_cauda*;
+  a_exp_relacional_cauda = 
+    {menor} a_exp_aditiva |
+    {maior} a_exp_aditiva |
+    {menor_igual} a_exp_aditiva |
+    {maior_igual} a_exp_aditiva;
+
+  a_exp_aditiva = a_exp_multiplicativa a_exp_aditiva_cauda*;
+  a_exp_aditiva_cauda = 
+    {soma} a_exp_multiplicativa |
+    {subtracao} a_exp_multiplicativa;
+
+  a_exp_multiplicativa = a_exp_unaria a_exp_multiplicativa_cauda*;
+  a_exp_multiplicativa_cauda = 
+    {multiplicacao} a_exp_unaria |
+    {divisao} a_exp_unaria;
+
+  a_exp_unaria = 
+    {nao} a_exp_unaria |
+    {negativo} a_exp_unaria |
+    {primaria} a_exp_primaria;
+
+  a_exp_primaria =
+    {numero} a_numero |
+    {caractere} a_caractere |
+    {string} a_string |
+    {booleano} a_booleano |
+    {var} a_var |
+    {chamada} a_chamada |
+    {parenteses} a_exp;
+
+  a_chamada = a_identificador a_lista_exp?;
+
+  a_lista_exp = a_exp a_lista_exp_cauda*;
+  a_lista_exp_cauda = a_exp;
