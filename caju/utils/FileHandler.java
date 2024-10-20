@@ -3,6 +3,7 @@ package caju.utils;
 import caju.lexer.*;
 import caju.node.*;
 import caju.parser.*;
+import caju.semantics.SemanticAnalyzer;
 import caju.ast.*;
 
 import java.io.*;
@@ -24,8 +25,7 @@ public class FileHandler {
             Parser parser = new Parser(lexer);
             Start tree = parser.parse();
 
-            tree.apply(new ASTPrinter());
-            tree.apply(new ASTDisplay());
+            tree.apply(new SemanticAnalyzer());
         }
     }
 }
