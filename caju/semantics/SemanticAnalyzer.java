@@ -1,20 +1,14 @@
 package caju.semantics;
 
-import java.util.Stack;
-
 import caju.analysis.DepthFirstAdapter;
-import caju.node.ABlocoAComando;
-import caju.node.ABooleanoATipo;
-import caju.node.ACaractereATipo;
-import caju.node.ANumeroATipo;
-import caju.node.AVariavelADeclaracao;
-import caju.node.AVetorATipo;
-import caju.node.PANome;
-import caju.node.PATipo;
-import caju.node.Start;
+import caju.node.*;
 
 public class SemanticAnalyzer extends DepthFirstAdapter {
-    private Stack<SymbolTable> symbolTables;
+    private SymbolTable symbolTable;
+
+    public SemanticAnalyzer() {
+        this.symbolTable = new SymbolTable();
+    }
 
     @Override
     public void inStart(Start node) {
@@ -30,49 +24,86 @@ public class SemanticAnalyzer extends DepthFirstAdapter {
 
     }
 
-    public SemanticAnalyzer() {
-        symbolTables = new Stack<>();
-        symbolTables.push(new SymbolTable(null));
+     // Ao entrar em um programa
+    @Override
+    public void inAAPrograma(AAPrograma node) {
+        System.out.println("Iniciando análise semântica do programa");
     }
 
+    // Ao sair de um programa
+    @Override
+    public void outAAPrograma(AAPrograma node) {
+        System.out.println("Finalizando análise semântica do programa");
+    }
+
+    // Ao entrar em um bloco de código (abre novo escopo)
+    @Override
     public void inABlocoAComando(ABlocoAComando node) {
-        symbolTables.push(new SymbolTable(symbolTables.peek()));
+        System.out.println("Abrindo escopo de bloco");
+        symbolTable.openScope();
     }
 
+    // Ao sair de um bloco de código (fecha o escopo)
     @Override
     public void outABlocoAComando(ABlocoAComando node) {
-        symbolTables.pop();
+        System.out.println("Fechando escopo de bloco");
+        symbolTable.closeScope();
     }
 
+    // Caso de uma declaração de variável
     @Override
-public void caseAVariavelADeclaracao(AVariavelADeclaracao node) {
-    Symbol.Type varType = getTypeFromNode(node.getATipo());
-
-    for (PANome nomeNode : node.getNomes()) {
-        String varName = nomeNode.toString();
-
-        SymbolTable currentScope = symbolTables.peek();
-        if (!currentScope.add(varName, new Symbol(varName, varType))) {
-            System.err.println("Erro: Variável '" + varName + "' já foi declarada no escopo atual.");
+    public void caseAVariavelADeclaracao(AVariavelADeclaracao node) {
+        // Obtém o nome da variável a partir da lista de nomes
+        if (!node.getNomes().isEmpty()) {
+            String varName = node.getNomes().getFirst().toString(); // Nome da variável
+            String varType = node.getATipo().toString();  // Tipo da variável
+    
+            // Verifica se a variável já foi declarada no escopo atual
+            if (!symbolTable.insertSymbol(varName, new Symbol(varName, Symbol.Type.VARIAVEL, varType))) {
+                System.err.println("Erro: Variável " + varName + " já foi declarada no escopo atual.");
+            } else {
+                System.out.println("Variável " + varName + " declarada com sucesso.");
+            }
         } else {
-            System.out.println("Variável '" + varName + "' declarada com sucesso.");
+            System.err.println("Erro: Declaração de variável sem nome.");
         }
     }
-}
+    
 
-
-private Symbol.Type getTypeFromNode(PATipo tipoNode) {
-    if (tipoNode instanceof ANumeroATipo) {
-        return Symbol.Type.NUMERO;
-    } else if (tipoNode instanceof ACaractereATipo) {
-        return Symbol.Type.CARACTERE;
-    } else if (tipoNode instanceof ABooleanoATipo) {
-        return Symbol.Type.BOOLEANO;
-    } else if (tipoNode instanceof AVetorATipo) {
-        return Symbol.Type.VETOR;
-    } else {
-        return null; 
+    // Caso de uma declaração de função
+    @Override
+    public void caseAFuncaoADeclaracao(AFuncaoADeclaracao node) {
+        String functionName = node.getNome().getText();
+        String returnType = node.getTipoRetorno().toString();
+    
+        // Verifica se a função já foi declarada no escopo atual
+        if (!symbolTable.insertSymbol(functionName, new Symbol(functionName, Symbol.Type.FUNCAO, returnType))) {
+            System.err.println("Erro: Função " + functionName + " já foi declarada.");
+        } else {
+            System.out.println("Função " + functionName + " declarada com sucesso.");
+        }
+    
+        // Abre um novo escopo para os parâmetros e o corpo da função
+        symbolTable.openScope();
+    
+        // Insere os parâmetros na tabela de símbolos
+        for (PAParametro parametro : node.getParametros()) {
+            // Usa o método getATipo() para pegar o tipo do parâmetro
+            String paramName = ((AAParametro) parametro).getNome().getText();
+            String paramType = ((AAParametro) parametro).getATipo().toString();
+    
+            if (!symbolTable.insertSymbol(paramName, new Symbol(paramName, Symbol.Type.VARIAVEL, paramType))) {
+                System.err.println("Erro: Parâmetro " + paramName + " já foi declarado.");
+            } else {
+                System.out.println("Parâmetro " + paramName + " declarado com sucesso.");
+            }
+        }
+    
+        // Processa o bloco da função
+        node.getABloco().apply(this);
+    
+        // Fecha o escopo da função
+        symbolTable.closeScope();
     }
-}
-  
+    
 }

@@ -1,34 +1,39 @@
 package caju.semantics;
 
+import java.util.Stack;
 import java.util.HashMap;
-import java.util.Map;
 
-public class SymbolTable {
-    private Map<String, Symbol> symbols;
-    private SymbolTable parent;
+// Classe SymbolTable para armazenar variáveis, funções e seus atributos
+class SymbolTable {
+    private Stack<HashMap<String, Symbol>> scopes;
 
-    public SymbolTable(SymbolTable parent) {
-        this.symbols = new HashMap<>();
-        this.parent = parent;
+    public SymbolTable() {
+        scopes = new Stack<>();
+        openScope(); // abre o escopo global
     }
 
-    public Symbol lookup(String name) {
-        Symbol symbol = symbols.get(name);
-        if (symbol == null && parent != null) {
-            return parent.lookup(name);
-        }
-        return symbol;
+    public void openScope() {
+        scopes.push(new HashMap<>());
     }
 
-    public boolean add(String name, Symbol symbol) {
-        if (symbols.containsKey(name)) {
-            return false;
+    public void closeScope() {
+        scopes.pop();
+    }
+
+    public boolean insertSymbol(String name, Symbol symbol) {
+        if (scopes.peek().containsKey(name)) {
+            return false; // simbolo já existe no escopo atual
         }
-        symbols.put(name, symbol);
+        scopes.peek().put(name, symbol);
         return true;
     }
 
-    public SymbolTable getParent() {
-        return parent;
+    public Symbol lookupSymbol(String name) {
+        for (int i = scopes.size() - 1; i >= 0; i--) {
+            if (scopes.get(i).containsKey(name)) {
+                return scopes.get(i).get(name);
+            }
+        }
+        return null; // símbolo não encontrado
     }
 }

@@ -1,18 +1,19 @@
 package caju.semantics;
 
-public class Symbol {
+class Symbol {
     public enum Type {
-        NUMERO, CARACTERE, BOOLEANO, FUNCAO, VETOR
+        VARIAVEL, FUNCAO, VETOR, INTEIRO,
+        BOOLEANO, CARACTERE, STRING, VAZIO
     }
 
     private String name;
     private Type type;
-    private boolean initialized;
+    private String dataType; 
 
-    public Symbol(String name, Type type) {
+    public Symbol(String name, Type type, String dataType) {
         this.name = name;
         this.type = type;
-        this.initialized = false;
+        this.dataType = dataType;
     }
 
     public String getName() {
@@ -23,11 +24,7 @@ public class Symbol {
         return type;
     }
 
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    public void setInitialized(boolean initialized) {
-        this.initialized = initialized;
+    public String getDataType() {
+        return dataType;
     }
 }
