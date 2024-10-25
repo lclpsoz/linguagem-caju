@@ -73,6 +73,106 @@ public class SemanticAnalyzer extends DepthFirstAdapter {
         }
     }
 
+    @Override
+    public void inAAtribuicaoAComando(AAtribuicaoAComando node) {
+        PAAtrib atrib = node.getAAtrib();
+        if (atrib instanceof AAAtrib) {
+            AAAtrib aAtrib = (AAAtrib) atrib;
+            String varName = aAtrib.getAlvo().toString().trim();
+            Symbol varSymbol = symbolTable.get(varName);
+            
+            if (varSymbol == null) {
+                addError("Variável '" + varName + "' não declarada.");
+                return;
+            }
+            
+            String expType = getExpressionType(aAtrib.getValor());
+            if (!varSymbol.type.equals(expType)) {
+                addError("Tipo incompatível na atribuição. Esperado " + varSymbol.type + ", mas recebeu " + expType + ".");
+            }
+            
+            varSymbol.initialized = true;
+        } else {
+            addError("Estrutura de atribuição inválida.");
+        }
+    }
+
+    @Override
+    public void inAChamadaAComando(AChamadaAComando node) {
+        if (node.getAChamada() instanceof AAChamada) {
+            checkFunctionCall((AAChamada) node.getAChamada());
+        } else {
+            addError("Invalid function call structure.");
+        }
+    }
+
+    @Override
+    public void inAChamadaAExp(AChamadaAExp node) {
+        checkFunctionCall(node.getAChamada());
+    }
+
+    private void checkFunctionCall(PAChamada chamada) {
+        if (!(chamada instanceof AAChamada)) {
+            addError("Invalid function call structure.");
+            return;
+        }
+        AAChamada aaChamada = (AAChamada) chamada;
+        String funcName = aaChamada.getNome().getText();
+        Symbol funcSymbol = symbolTable.get(funcName);
+        
+        if (funcSymbol == null) {
+            addError("Function '" + funcName + "' is not declared.");
+            return;
+        }
+        
+        if (!funcSymbol.type.equals("funcao")) {
+            addError("'" + funcName + "' is not a function.");
+            return;
+        }
+        
+        // Verificar número e tipos dos argumentos
+        // (Implementação depende da estrutura da AST para argumentos de função)
+    }
+
+    @Override
+    public void inASeAComando(ASeAComando node) {
+        String condType = getExpressionType(node.getAExp());
+        if (!condType.equals("booleano")) {
+            addError("Condição do 'se' deve ser booleana, mas recebeu " + condType + ".");
+        }
+    }
+
+    private String getExpressionType(PAExp exp) {
+        if (exp instanceof ANumeroAExp) {
+            return "numero";
+        } else if (exp instanceof ACaractereAExp) {
+            return "caractere";
+        } else if (exp instanceof ABooleanoAExp) {
+            return "booleano";
+        } else if (exp instanceof AVarAExp) {
+            return getVarType((AVarAExp) exp);
+        } else if (exp instanceof AAditivaAExp || exp instanceof AMultiplicativaAExp) {
+            return "numero";  // Assumindo que operações aritméticas resultam em número
+        } else if (exp instanceof ARelacionalAExp || exp instanceof AIgualdadeAExp) {
+            return "booleano";  // Operações relacionais e de igualdade resultam em booleano
+        }
+        // Adicione mais casos conforme necessário
+        return "desconhecido";
+    }
+
+    private String getVarType(AVarAExp exp) {
+        String varName = exp.getAVar().toString().trim();
+        Symbol varSymbol = symbolTable.get(varName);
+        if (varSymbol == null) {
+            addError("Variável '" + varName + "' não declarada.");
+            return "desconhecido";
+        }
+        if (!varSymbol.initialized) {
+            addError("Variável '" + varName + "' não inicializada.");
+        }
+        return varSymbol.type;
+    }
+
     private void addError(String message) {
         errors.add(message);
     }
