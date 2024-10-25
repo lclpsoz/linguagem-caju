@@ -4,7 +4,7 @@ import caju.lexer.*;
 import caju.node.*;
 import caju.parser.*;
 import caju.semantics.SemanticAnalyzer;
-import caju.ast.*;
+import caju.codegen.*;
 
 import java.io.*;
 
@@ -20,12 +20,29 @@ public class FileHandler {
     }
 
     public static void parseFile(String filePath) throws IOException, ParserException, LexerException {
+        if (!isValidFile(filePath)) {
+            throw new FileNotFoundException("File not found or cannot be read: " + filePath);
+        }
+
         try (FileReader fileReader = getFileReader(filePath)) {
             Lexer lexer = new Lexer(new PushbackReader(fileReader, 1024));
             Parser parser = new Parser(lexer);
             Start tree = parser.parse();
 
-            tree.apply(new SemanticAnalyzer());
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+            tree.apply(semanticAnalyzer);
+
+            CCodeGenerator codeGenerator = new CCodeGenerator();
+            tree.apply(codeGenerator);
+
+            String outputPath = filePath.replaceAll("\\.caju$", ".c");
+            System.out.println(codeGenerator.getGeneratedCode());
+            try (FileWriter writer = new FileWriter(outputPath)) {
+                writer.write(codeGenerator.getGeneratedCode());
+            }
+        } catch (IOException | ParserException | LexerException e) {
+            e.printStackTrace();
+            throw e; 
         }
     }
 }
