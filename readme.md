@@ -16,6 +16,7 @@ java -jar /Users/rmenezes/Documents/ufs/Compiladores/SableCC/lib/sablecc.jar caj
 ```
 
 ## Passo 2: Compilar os Arquivos Java
+
 Após gerar os arquivos Java, compile todos os arquivos no pacote caju. Execute o seguinte comando no terminal:
 
 ```bash
@@ -23,13 +24,15 @@ javac caju/*.java caju/**/*.java
 ```
 
 ## Passo 3: Executar o Programa
-Por fim, você pode rodar a classe principal do seu projeto. Lembre-se de verificar se o caminho para o arquivo de teste (teste.caju) está correto. Você pode passar o arquivo de teste como um parâmetro. Execute o comando:
+
+Por fim, você pode rodar a classe principal do seu projeto. Lembre-se de verificar se o caminho para o arquivo de teste (teste.cj) está correto. Você pode passar o arquivo de teste como um parâmetro. Execute o comando:
 
 ```bash
 
-java -cp . caju.Main test/teste.caju
+java -cp . caju.Main test/teste.cj
 ```
 
 ## Observações
+
 Certifique-se de que o arquivo caju.sable e o arquivo de teste teste.caju estão localizados no diretório correto.
 O parâmetro teste.caju pode ser modificado para o caminho correto do seu arquivo de teste, caso necessário.

@@ -35,7 +35,7 @@ public class FileHandler {
             CCodeGenerator codeGenerator = new CCodeGenerator();
             tree.apply(codeGenerator);
 
-            String outputPath = filePath.replaceAll("\\.caju$", ".c");
+            String outputPath = filePath.replaceAll("\\.cj$", ".c");
             System.out.println(codeGenerator.getGeneratedCode());
             try (FileWriter writer = new FileWriter(outputPath)) {
                 writer.write(codeGenerator.getGeneratedCode());
