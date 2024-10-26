@@ -29,7 +29,7 @@ Por fim, você pode rodar a classe principal do seu projeto. Lembre-se de verifi
 
 ```bash
 
-java -cp . caju.Main test/teste.cj
+java -cp . caju.Main test/teste.caju
 ```
 
 ## Observações
