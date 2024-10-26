@@ -4,7 +4,7 @@ import caju.utils.*;
 
 public class Main {
     public static void main(String[] args) {
-        String filePath = (args.length > 0) ? args[0] : "test/teste.cj";
+        String filePath = (args.length > 0) ? args[0] : "test/teste\\.(caju|cj)$";
         System.out.println("Analisando o arquivo '" + filePath + "'...");
 
         if (!FileHandler.isValidFile(filePath)) {
@@ -14,7 +14,6 @@ public class Main {
         
         try {
             FileHandler.parseFile(filePath);
-            System.out.println("Análise Sintática concluída com sucesso!");
         } catch (Exception e) {
             ErrorHandler.handleErrors(filePath, e);
         }
